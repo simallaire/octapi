@@ -6,7 +6,7 @@ import PrinterConnectionService from "../services/printerConnection.service";
 import { Button, Form, FormSelect, Table } from "react-bootstrap";
 import TemperatureState from "../models/Temperature";
 import printerInfoService from "../services/printerInfo.service";
-import TargetTemperature from "./targetTemperature";
+import TemperatureForm from "./temperatureForm";
 
 interface PrinterTemperatureState {
     temperature: TemperatureState | undefined,
@@ -92,10 +92,10 @@ function PrinterTemperature(){
                     <tr>
                         <td>Target</td>
                         <td>
-                            <TargetTemperature temp={toolTarget} setTemp={setToolTarget} tool="tool0" />
+                            <TemperatureForm temp={toolTarget} setTemp={setToolTarget} tool="tool0" />
                         </td>
                         <td>
-                            <TargetTemperature temp={bedTarget} setTemp={setBedTarget} tool="bed" />
+                            <TemperatureForm temp={bedTarget} setTemp={setBedTarget} tool="bed" />
                         </td>
                     </tr>
                 </tbody>

@@ -18,7 +18,7 @@ import { Line } from 'react-chartjs-2';
 import axios from "axios";
 import PrinterTemperature from "./printerTemperature";
 import TemperatureHistory from "../models/TemperatureHistory";
-import ASpinner from "./aSpinner";
+import ASpinner from "./common/aSpinner";
 import faker from "faker";
 import LineChartData from "../models/LineChartData";
 import utilitiesService from "../services/utilities.service";

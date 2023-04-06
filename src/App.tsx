@@ -9,7 +9,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios'
 import PrinterConnection from './components/printerConnection'
 import { Alert, Card, Stack } from 'react-bootstrap'
-import PrinterFiles from './components/printerFiles'
+import PrinterFiles from './components/fileList'
 import TimeAgo from 'javascript-time-ago'
 
 import en from 'javascript-time-ago/locale/en.json'

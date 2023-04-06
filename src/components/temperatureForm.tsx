@@ -10,7 +10,7 @@ import NumericInput from 'react-numeric-input';
 import editIcon from '../assets/edit.png'
 import React from "react";
 
-interface TargetTemperatureState {
+interface TemperatureFormState {
     toolname: string | null;
     editing: boolean;
     temperature: number;
@@ -20,8 +20,8 @@ interface TargetTemperatureState {
 
 }
 
-function TargetTemperature({temp, setTemp, tool}) {
-    const defaultTemperatureState : TargetTemperatureState = {
+function TemperatureForm({temp, setTemp, tool}) {
+    const defaultTemperatureState : TemperatureFormState = {
         toolname: tool,
         editing: false,
         temperature: temp,
@@ -96,4 +96,4 @@ function TargetTemperature({temp, setTemp, tool}) {
         )
 }
 
-export default TargetTemperature;
+export default TemperatureForm;
