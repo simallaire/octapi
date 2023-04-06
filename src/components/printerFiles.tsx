@@ -23,7 +23,7 @@ function FileListItem({file, selectedFile, setSelectedFile}) {
     const [success, setSuccess] = useState(0);
     const [error, setError] = useState(0);
 
-    const toDateTime = (secs) => {
+    const toDateTime = (secs: number) => {
         var t = new Date(1970, 0, 1);
         t.setSeconds(secs);
         return t;
