@@ -81,17 +81,19 @@ function TemperatureForm({temp, setTemp, tool}) {
 
 
         return (
-            <>                
-                <div onClick={handleEdit} style={{"visibility": editVisibility, "position":"absolute", "min-width":"10rem", "border-size": "1px"}}>
+            <>         
+                { inputVisibility === "hidden" && (       
+                <div onClick={handleEdit} style={{"position":"relative", display: "", "min-width":"10rem", "border-size": "1px", paddingLeft: "10%"}}>
                 <span onClick={handleEdit}>{temperature} °C</span>
-                {/* <Button className="btn btn-secondary" onClick={handleEdit}>Edit</Button> */}
                 <img className="ms-auto"  style={{"height": "20px", "paddingLeft":"10px"}} onClick={handleEdit} src={editIcon}/>
                 </div>
+                )}
+                { inputVisibility === "visible" && (
                 <div style={{"visibility": inputVisibility}}>
-                    <NumericInput className="form-control" style={{"width": "8rem"}} min={0} max={toolname === "bed" ? 100: 250} onKeyDown={onKeyDown} type="number" value={targetTemperature} onChange={e => setTargetTemperature(e)} />
+                    <NumericInput className="form-control" style={{"width": "100%"}} min={0} max={toolname === "bed" ? 100: 250} onKeyDown={onKeyDown} type="number" value={targetTemperature} onChange={e => setTargetTemperature(e)} />
                     {/* <CloseButton onClick={handleCancel} /> */}
                 </div>
-
+                )}
             </>
         )
 }
