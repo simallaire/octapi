@@ -52,7 +52,7 @@ const options = {
         },
         title: {
             display: true,
-            text: 'Last 10 minutes',
+            text: 'Last 30 minutes',
         }
     },
     scales: {

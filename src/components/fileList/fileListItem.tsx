@@ -37,6 +37,8 @@ function FileListItem({file, selectedFile, setSelectedFile}) {
         if (file.prints){
             if (file.prints.last.success === false) {
                 setVariant("warning");
+            }else{
+                setVariant("success");
             }
             setSuccess(file.prints.success);
             setError(file.prints.failure);

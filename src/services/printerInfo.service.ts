@@ -28,7 +28,7 @@ class PrinterInfoService{
     }
     getTemperatureHistory(){
         return axios
-            .get("printer?history=true")
+            .get("printer?history=true&limit=1000")
             .then((response) => {
                 // console.log(response)
                 if (response.data.temperature.history)

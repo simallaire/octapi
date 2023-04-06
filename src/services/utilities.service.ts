@@ -25,7 +25,8 @@ class UtilitiesService {
             Intl.DateTimeFormat('en-CA', {
                 hour: 'numeric',
                 minute: 'numeric',
-                timeZone: 'America/Toronto'
+                timeZone: 'America/Halifax',
+                hour12: false
             },).format(this.toDateTime(seconds))
         )
     }
