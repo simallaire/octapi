@@ -57,7 +57,7 @@ function FileListItem({file, selectedFile, setSelectedFile}) {
     
     return (
         <ListGroup.Item variant={variant} eventKey={file.date} active={active} onClick={handleClick} action as="li" className="d-flex align-items-start">
-            <div className="ms-2 me-auto">
+            <div className="ms-2 me-auto" style={{"width": "100%"}}>
                 <div className="fw-bold">{file.display}</div>
                 <Table>
                     <tbody>
@@ -65,6 +65,8 @@ function FileListItem({file, selectedFile, setSelectedFile}) {
                             <td>
                                 <ReactTimeAgo date={toDateTime(file.date)} locale="en-US" />
                             </td>
+                            <td></td>
+                            <td></td>
                             <td>
                                 {UtilitiesService.bytesToHumanReadable(file.size)}
                             </td>
@@ -74,12 +76,12 @@ function FileListItem({file, selectedFile, setSelectedFile}) {
             </div>
             {success > 0 && (
                 <Badge bg="success" className="ms-2" pill>
-                    {success}
+                    Printed {success}
                 </Badge>
             )}
             {error > 0 && (
                 <Badge bg="warning" className="ms-2" pill>
-                    {error}
+                    Failed {error}
                 </Badge>
             )}
         </ListGroup.Item>
@@ -155,7 +157,7 @@ function PrinterFiles({setAlertFunctions}){
             <Input type="text" placeholder="Filter.." value={searchText} onChange={registerKey} onKeyUp={handleSearch}></Input>
             <Card.Body >
                     { fileList && (
-                        <ListGroup as="ol" numbered style={{maxHeight: 300, overflow: 'auto'}}>
+                        <ListGroup as="ol" numbered style={{maxHeight: 360, overflow: 'auto', width: "100%"}}>
                             {fileList.map((file) => (
                                 <FileListItem key={file.date} file={file} selectedFile={selectedFile} setSelectedFile={setSelectedFile} />
                             ))}
