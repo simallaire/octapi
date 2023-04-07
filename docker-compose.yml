@@ -6,3 +6,7 @@ services:
       context: .
     privileged: true
     network_mode: "host"
+    volumes:
+      - ./src:/app/src
+    environment:
+      - TZ=America/Toronto
