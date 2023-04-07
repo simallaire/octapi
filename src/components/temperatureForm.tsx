@@ -83,7 +83,7 @@ function TemperatureForm({temp, setTemp, tool}) {
         return (
             <>         
                 { inputVisibility === "hidden" && (       
-                <div onClick={handleEdit} style={{"position":"relative", display: "", "min-width":"10rem", "border-size": "1px", paddingLeft: "10%"}}>
+                <div onClick={handleEdit} style={{"position":"relative", display: "", "minWidth":"10rem", paddingLeft: "10%"}}>
                 <span onClick={handleEdit}>{temperature} °C</span>
                 <img className="ms-auto"  style={{"height": "20px", "paddingLeft":"10px"}} onClick={handleEdit} src={editIcon}/>
                 </div>

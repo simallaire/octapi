@@ -3,25 +3,12 @@ import { useEffect, useState } from "react";
 import Card from 'react-bootstrap/Card';
 import PrinterInfoService from "../services/printerInfo.service"
 import PrinterState from "../models/PrinterState";
-import {
-    Chart as ChartJS,
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    Title,
-    Tooltip,
-    Legend,
-  } from 'chart.js';
-import { Line } from 'react-chartjs-2';
-
-import axios from "axios";
 import PrinterTemperature from "./printerTemperature";
 import TemperatureHistory from "../models/TemperatureHistory";
 import ASpinner from "./common/aSpinner";
-import faker from "faker";
 import LineChartData from "../models/LineChartData";
-import utilitiesService from "../services/utilities.service";
+import UtilitiesService from "../services/utilities.service";
+import TemperatureLineChart from "./common/temperatureLineChart";
 
 
 interface PrinterInfoState {
@@ -33,41 +20,11 @@ interface PrinterInfoState {
 
 }
 
-ChartJS.register(
-    CategoryScale,
-    LinearScale,
-    PointElement,
-    LineElement,
-    Title,
-    Tooltip,
-    Legend
-);
-
-const options = {
-    responsive: true,
-    plugins: {
-        legend: {
-            display: true,
-            position: 'bottom' as const,
-        },
-        title: {
-            display: true,
-            text: 'Last 30 minutes',
-        }
-    },
-    scales: {
-        x: {
-            display: true,
-            scaleLabel: {
-                display: true,
-                labelString: 'Time'
-            }
-        }
-    }
-}
 
 
-function PrinterInfo(){
+
+
+function PrinterInfo({setIsPrinting}){
 
     const defaultState : PrinterInfoState = {
         name: null,
@@ -110,7 +67,7 @@ function PrinterInfo(){
         if (temperatureHistory !== undefined) {
             
             for (let i = 0; i < temperatureHistory.length; i++) {
-                x.push(utilitiesService.secondsToHourMin(temperatureHistory[i].time));
+                x.push(UtilitiesService.secondsToHourMin(temperatureHistory[i].time));
                 toolCurrent.push(temperatureHistory[i].tool0.actual || 0);
                 toolTarget.push(temperatureHistory[i].tool0.target || 0);
                 bedCurrent.push(temperatureHistory[i].bed.actual || 0);
@@ -155,6 +112,8 @@ function PrinterInfo(){
         fetchState();
         fetchHistory();
         setLineChartData(makeChartData);
+        setIsPrinting(printerState?.flags?.printing);
+
         
     }, []);
     useEffect(() => {
@@ -166,6 +125,7 @@ function PrinterInfo(){
             fetchState();
             fetchHistory();
             setLineChartData(makeChartData)
+            setIsPrinting(printerState?.flags?.printing);
 
             // console.log(printerState);
         }, 10000);
@@ -175,37 +135,30 @@ function PrinterInfo(){
         return (
             <>
 
-            <Card border="info">
+                <Card border="info">
 
-            { printerState && (
-                <>
-                <Card.Header>Printer State: { printerState.flags?.printing? "Printing" : "Not Printing" }</Card.Header>
-                <Card.Body>
-                    <Card.Text>
-                        <>
-                        State: { printerState.text }
-                        </>
-                    </Card.Text>
-                    <Card.Text>
-                        <PrinterTemperature />
-                    </Card.Text>
-                    <Card.Text>
-                    </Card.Text>
-                </Card.Body>
-                </>
-                )}
-            </Card>
-            { lineChartData?.datasets && (
-                <Card>
-                    <Card.Header>
-                        <Card.Title as="h5">Temperature History</Card.Title>
-                    </Card.Header>
+                { printerState && (
+                    <>
+                    <Card.Header>Printer State: { printerState.flags?.printing? "Printing" : "Not Printing" }</Card.Header>
                     <Card.Body>
-                        <Line style={{"width": "100%"}} options={options} data={lineChartData}></Line>
+                        <Card.Text>
+                            <>
+                            State: { printerState.text }
+                            </>
+                        </Card.Text>
+                        <Card.Text>
+                            <PrinterTemperature />
+                        </Card.Text>
+                        <Card.Text>
+                        </Card.Text>
                     </Card.Body>
+                    </>
+                    )}
                 </Card>
+                { lineChartData?.datasets && (
+                    <TemperatureLineChart data={lineChartData} />
 
-            )}
+                )}
             </>
         )
             }

@@ -53,7 +53,7 @@ function PrinterConnection(){
         
         setTimeout(() => {
             fetchState();
-            if(connectionState?.current?.state == "Operational"){
+            if(connectionState?.current?.state == "Operational" || connectionState?.current?.state == "Printing"){
                 if(!isConnected)
                     setShowForm(false);
                 setIsConnected(true);

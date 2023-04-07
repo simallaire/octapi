@@ -26,7 +26,8 @@ axios.defaults.headers.common = {
 interface AppState {
   alertMessage: string | null,
   alertVariant: string | null
-  alertShow: boolean
+  alertShow: boolean,
+  isPrinting: boolean
 
 }
 
@@ -34,12 +35,14 @@ function App() {
   const defaultState : AppState = {
     alertMessage: null,
     alertVariant: null,
-    alertShow: false
+    alertShow: false,
+    isPrinting: false
   }
   const [count, setCount] = useState(0)
   const [alertMessage, setAlertMessage] = useState(defaultState.alertMessage)
   const [alertVariant, setAlertVariant] = useState(defaultState.alertVariant)
   const [alertShow, setAlertShow] = useState(defaultState.alertShow)
+  const [isPrinting, setIsPrinting] = useState(defaultState.isPrinting)
   
   const setAlertFunctions = {
     setAlertMessage: setAlertMessage,
@@ -53,31 +56,26 @@ function App() {
         {alertMessage}
       </Alert>
 
-    <div className="App">
-      <Row xs={1} md={2} className="g-4">
-          <Col>
-            {/* <Stack gap={2} className="col-md-5 mx-auto"> */}
-              <Card.Body>
-                <img src={reactLogo} alt="React Logo" className="logo"/>
-              </Card.Body>
-              <PrinterConnection />
-              <PrinterInfo/>
+      <div className="App" data-bs-theme="light">
+          <Row xs={1} md={isPrinting ? 1 : 2} className="g-4">
+            <Col>
+                <Card.Body>
+                  <img src={reactLogo} alt="React Logo" className="logo"/>
+                </Card.Body>
+                <PrinterConnection />
+                <PrinterInfo setIsPrinting={setIsPrinting}/>
 
-            {/* </Stack> */}
-          </Col>
-          <Col>
-            {/* <Stack gap={2} className="col-md-5 mx-auto"> */}
-             
-              <Card.Body>
-                <img src={viteLogo} alt="Vite Logo" className="logo"/>
-              </Card.Body>
-              <PrinterFiles setAlertFunctions={setAlertFunctions} />
+            </Col>
+            <Col>
+              
+                <Card.Body>
+                  <img src={viteLogo} alt="Vite Logo" className="logo"/>
+                </Card.Body>
+                <PrinterFiles setAlertFunctions={setAlertFunctions} />
 
-            {/* </Stack> */}
-          </Col>
-      </Row>
-
-    </div>
+            </Col>
+        </Row>
+      </div>
     </>
   )
 }
