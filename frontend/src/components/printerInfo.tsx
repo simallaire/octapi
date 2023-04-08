@@ -9,6 +9,8 @@ import ASpinner from "./common/aSpinner";
 import LineChartData from "../models/LineChartData";
 import UtilitiesService from "../services/utilities.service";
 import TemperatureLineChart from "./common/temperatureLineChart";
+import { Button, Form } from "react-bootstrap";
+import printerFileService from "../services/printerFile.service";
 
 
 interface PrinterInfoState {
@@ -107,7 +109,16 @@ function PrinterInfo({setIsPrinting}){
 
         
 
-        }
+    }
+    const handleCancel = () => {
+        setIsPrinting(false)
+        printerFileService.cancelPrint()
+        setTimeout(() => {
+            fetchState()
+        }, 2000)
+
+    }
+
     useEffect(() => {
         fetchState();
         fetchHistory();
@@ -132,6 +143,8 @@ function PrinterInfo({setIsPrinting}){
 
     })
     if(error === "") {
+
+
         return (
             <>
 
@@ -145,6 +158,10 @@ function PrinterInfo({setIsPrinting}){
                             <>
                             State: { printerState.text }
                             </>
+                       
+                            <Form>
+                                <Button disabled={!printerState.flags?.printing} variant="secondary" className="form-control" type="submit" onClick={handleCancel}>Cancel Print</Button>
+                            </Form>
                         </Card.Text>
                         <Card.Text>
                             <PrinterTemperature />

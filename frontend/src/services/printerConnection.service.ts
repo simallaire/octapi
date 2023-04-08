@@ -7,7 +7,7 @@ class PrinterConnectionService{
             .post("connection", {
                 "command": "connect",
                 "port": port,
-                "baudRate": parseInt(baudRate),
+                "baudRate": parseInt(`${baudRate}`),
                 "autoconnect": autoconnect,
                 "printerProfile": "_default",
                 "save": true,

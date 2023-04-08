@@ -22,5 +22,15 @@ class PrinterFileService{
             return false;
         })
     }
+    cancelPrint(){
+        return axios.post("job", {
+                "command": "cancel"
+            }).then(res => {
+                if(res.status === 204){
+                    return true;
+                }
+                return false;
+            })
+    }
 }
 export default new PrinterFileService();
