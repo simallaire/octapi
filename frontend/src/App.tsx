@@ -8,7 +8,7 @@ import Row from 'react-bootstrap/Row';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import axios from 'axios'
 import PrinterConnection from './components/printerConnection'
-import { Alert, Card, Stack } from 'react-bootstrap'
+import { Alert, Card } from 'react-bootstrap'
 import PrinterFiles from './components/fileList'
 import TimeAgo from 'javascript-time-ago'
 
@@ -25,7 +25,7 @@ axios.defaults.headers.common = {
 
 interface AppState {
   alertMessage: string | null,
-  alertVariant: string | null
+  alertVariant: string | undefined
   alertShow: boolean,
   isPrinting: boolean
 
@@ -34,7 +34,7 @@ interface AppState {
 function App() {
   const defaultState : AppState = {
     alertMessage: null,
-    alertVariant: null,
+    alertVariant: undefined,
     alertShow: false,
     isPrinting: false
   }
