@@ -1,4 +1,5 @@
 import axios from 'axios';
+import PrinterTemperature from '../Models/PrinterTemperature';
 
 export default class PrinterTemperatureService {
     constructor(){
@@ -17,7 +18,14 @@ export default class PrinterTemperatureService {
     }
     async run(){
         const temperature = await this.getTemperature()
-        console.log(temperature)
+        const printerTemperature = new PrinterTemperature({
+            bedActual: temperature.bed.actual,
+            bedTarget: temperature.bed.target,
+            toolActual: temperature.tool0.actual,
+            toolTarget: temperature.tool0.target,
+            date: (new Date()).toUTCString()
+        })
+        console.log(await printerTemperature.save())
         return temperature
     }
 }

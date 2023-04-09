@@ -2,7 +2,7 @@ export interface Task {
     service: any,
     timeout: number,
 }
-export class TaskManager {
+export class TaskScheduler {
     tasks : Task[];
 
     constructor() {
@@ -26,4 +26,4 @@ export class TaskManager {
     }
 }
 
-export default new TaskManager();
+export default new TaskScheduler();
