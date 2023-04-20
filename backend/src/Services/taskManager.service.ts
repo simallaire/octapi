@@ -1,3 +1,8 @@
+
+export interface Service {
+    run(): Promise<void>;
+}
+
 export interface Task {
     service: any,
     timeout: number,
@@ -17,6 +22,7 @@ export class TaskScheduler {
             for (let i = 0; i < this.tasks.length; i++) {
                 setTimeout(async () => {
                     await this.tasks[i].service.run();
+                    console.log(`Task #${i} is running`);
                 }, this.tasks[i].timeout)
                 loopWaitTime += this.tasks[i].timeout;
             }

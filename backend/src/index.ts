@@ -2,8 +2,12 @@ import express, { Application } from "express";
 import axios from "axios";
 import {TaskScheduler, Task} from "./Services/taskManager.service";
 import PrinterTemperatureService from "./Services/printerTemperature.service";
+import { printerTemperatureRouter } from "./Routers/PrinterTemperatureRouter";
 import mongoose from "mongoose";
+import cors from "cors";
 
+import * as swaggerJson from './swagger.json';
+import * as swaggerUI from 'swagger-ui-express';
 
 const PORT = process.env.PORT || 8000;
 
@@ -26,12 +30,14 @@ mongoose
         console.log(error.message);
     });
 
-
+app.use(cors());
 app.get("/ping", async (_req, res) => {
   res.send({
     message: "pong",
   });
 });
+app.use("/swagger", swaggerUI.serve, swaggerUI.setup(swaggerJson));
+app.use("/temperature", printerTemperatureRouter);
 
 app.listen(PORT, () => {
   console.log("Server is running on port", PORT);

@@ -9,10 +9,12 @@ export default class PrinterTemperatureService {
         return await axios
         .get("printer")
         .then((response) => {
-            if (response.data.temperature)
+            if (response.data.temperature){
                 return response.data.temperature
+            }
             return false
         }).catch((error) => {
+            console.log(error)
             return false
         })
     }

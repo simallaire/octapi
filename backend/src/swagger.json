@@ -1,0 +1,113 @@
+{
+	"components": {
+		"examples": {},
+		"headers": {},
+		"parameters": {},
+		"requestBodies": {},
+		"responses": {},
+		"schemas": {
+			"IPrinterTemperature": {
+				"properties": {
+					"bedActual": {
+						"type": "number",
+						"format": "double"
+					},
+					"bedTarget": {
+						"type": "number",
+						"format": "double"
+					},
+					"toolActual": {
+						"type": "number",
+						"format": "double"
+					},
+					"toolTarget": {
+						"type": "number",
+						"format": "double"
+					},
+					"date": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"bedActual",
+					"bedTarget",
+					"toolActual",
+					"toolTarget",
+					"date"
+				],
+				"type": "object",
+				"additionalProperties": false
+			}
+		},
+		"securitySchemes": {}
+	},
+	"info": {
+		"title": "backend",
+		"version": "1.0.0",
+		"license": {
+			"name": "ISC"
+		},
+		"contact": {}
+	},
+	"openapi": "3.0.0",
+	"paths": {
+		"/temperature/getLastN": {
+			"get": {
+				"operationId": "GetLastNTemperatures",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/IPrinterTemperature"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": [
+					{
+						"in": "query",
+						"name": "n",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				]
+			}
+		},
+		"/temperature/getAll": {
+			"get": {
+				"operationId": "GetTemperatures",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/IPrinterTemperature"
+									},
+									"type": "array"
+								}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": []
+			}
+		}
+	},
+	"servers": [
+		{
+			"url": "/"
+		}
+	]
+}
