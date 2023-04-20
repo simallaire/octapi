@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Badge, ListGroup, Table } from "react-bootstrap";
 import ReactTimeAgo from "react-time-ago";
 import UtilitiesService from "../../services/utilities.service";
+import { ListItem, ListItemButton, ListItemText, Paper, TableBody, TableCell, TableContainer, TableRow } from "@mui/material";
 
 
 function FileListItem({file, selectedFile, setSelectedFile}) {
@@ -46,35 +47,48 @@ function FileListItem({file, selectedFile, setSelectedFile}) {
     },[])
     
     return (
-        <ListGroup.Item variant={variant} eventKey={file.date} active={active} onClick={handleClick} action as="li" className="d-flex align-items-start">
+        <ListItemButton sx={{minWidth: 300}} dense={true} key={file.date} selected={active} onClick={handleClick} className="d-flex align-items-start">
             <div className="ms-2 me-auto" style={{"width": "100%"}}>
-                <div className="fw-bold">{file.display}</div>
-                <Table>
-                    <tbody>
-                        <tr>
-                            <td>
-                                <ReactTimeAgo date={toDateTime(file.date)} locale="en-US" />
-                            </td>
-                            <td></td>
-                            <td></td>
-                            <td>
-                                {UtilitiesService.bytesToHumanReadable(file.size)}
-                            </td>
-                        </tr>
-                    </tbody>
-                </Table>
+                <ListItemText 
+                    primary={file.display} 
+                    primaryTypographyProps={{
+                            fontSize: 20,
+                            fontWeight: 'medium',
+                            letterSpacing: 0,
+                    }}
+                    secondary={(
+                    <>
+                    <TableContainer component={ListItemText}>
+                    <Table>
+                        <TableBody>
+                            <TableRow>
+                                <TableCell>
+                                    <ReactTimeAgo date={toDateTime(file.date)} locale="en-US" />
+                                </TableCell>
+                                <TableCell></TableCell>
+                                <TableCell></TableCell>
+                                <TableCell>
+                                    {UtilitiesService.bytesToHumanReadable(file.size)}
+                                </TableCell>
+                            </TableRow>
+                        </TableBody>
+                    </Table>
+                    </TableContainer>
+                    {success > 0 && (
+                        <Badge bg="success" className="ms-2" pill>
+                            Printed {success}
+                        </Badge>
+                    )}
+                    {error > 0 && (
+                        <Badge bg="warning" className="ms-2" pill>
+                            Failed {error}
+                        </Badge>
+                    )}
+                    </>
+                )} />
+
             </div>
-            {success > 0 && (
-                <Badge bg="success" className="ms-2" pill>
-                    Printed {success}
-                </Badge>
-            )}
-            {error > 0 && (
-                <Badge bg="warning" className="ms-2" pill>
-                    Failed {error}
-                </Badge>
-            )}
-        </ListGroup.Item>
+        </ListItemButton>
 
     )
 }

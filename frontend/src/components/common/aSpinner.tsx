@@ -1,6 +1,6 @@
 
+import { CircularProgress } from "@mui/material";
 import { useEffect, useState } from "react";
-import { Spinner } from "react-bootstrap";
 
 interface ASpinnerState {
     isLoading: boolean;
@@ -18,9 +18,7 @@ function ASpinner() {
 
 
     return (
-        <Spinner animation="border" role="status">
-            <span className="visually-hidden">Loading...</span>
-        </Spinner>
+        <CircularProgress />
     )
 }
 

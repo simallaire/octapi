@@ -3,78 +3,70 @@ import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import PrinterInfo from './components/printerInfo'
 import './App.css'
-import Col from 'react-bootstrap/Col';
-import Row from 'react-bootstrap/Row';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import axios from 'axios'
 import PrinterConnection from './components/printerConnection'
-import { Alert, Card } from 'react-bootstrap'
-import PrinterFiles from './components/fileList'
-import TimeAgo from 'javascript-time-ago'
+import { Alert } from 'react-bootstrap'
+import FileList from './components/fileList'
+import {Box, Divider, Stack} from '@mui/material'
+import Grid2 from '@mui/material/Unstable_Grid2';
+import { File } from './models/Files'
+import FileInfo from './components/fileInfo'
 
-import en from 'javascript-time-ago/locale/en.json'
 
-TimeAgo.addDefaultLocale(en)
-TimeAgo.addLocale(en)
+const Grid = Grid2;
 
-axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL
-axios.defaults.headers.common = {
-  'Authorization': `Bearer ${import.meta.env.VITE_API_KEY}`,
-   'Content-Type': 'application/json'
-  }
 
 interface AppState {
-  alertMessage: string | null,
-  alertVariant: string | undefined
-  alertShow: boolean,
-  isPrinting: boolean
+  isPrinting: boolean,
+  selectedFile: File | null
 
 }
 
-function App() {
+function App({setAlertFunctions}: any) {
   const defaultState : AppState = {
-    alertMessage: null,
-    alertVariant: undefined,
-    alertShow: false,
-    isPrinting: false
+    isPrinting: false,
+    selectedFile: null
   }
   const [count, setCount] = useState(0)
-  const [alertMessage, setAlertMessage] = useState(defaultState.alertMessage)
-  const [alertVariant, setAlertVariant] = useState(defaultState.alertVariant)
-  const [alertShow, setAlertShow] = useState(defaultState.alertShow)
   const [isPrinting, setIsPrinting] = useState(defaultState.isPrinting)
-  
-  const setAlertFunctions = {
-    setAlertMessage: setAlertMessage,
-    setAlertVariant: setAlertVariant,
-    setAlertShow: setAlertShow
-  }
+  const [selectedFile, setSelectedFile] = useState(defaultState.selectedFile)
+
+
+
   return (
     <>
-  
-      <Alert variant={alertVariant} show={alertShow} defaultShow={false} onClose={() => {setAlertMessage(null); setAlertShow(false)}} dismissible>
-        {alertMessage}
-      </Alert>
 
-      <div className="App" data-bs-theme="light">
-          <Row xs={1} md={isPrinting ? 1 : 2} className="g-4">
-            <Col>
-                <Card.Body>
-                  <img src={reactLogo} alt="React Logo" className="logo"/>
-                </Card.Body>
-                <PrinterConnection />
-                <PrinterInfo setIsPrinting={setIsPrinting}/>
+      <div className="App">
+        <Box sx={{ flexGrow: 0 }}>
+            <Grid container spacing={1}>
+              <Grid xs={6}>
+                <Stack justifyContent="space-evenly">
+                  <Grid>
+                    <PrinterConnection />
+                  </Grid>
+                  <Grid>
+                    <PrinterInfo setIsPrinting={setIsPrinting} isPrinting={isPrinting} setAlertFunctions={setAlertFunctions}/>
+                  </Grid>
+                  <img src={viteLogo} alt="Vite Logo" className="logo" />
 
-            </Col>
-            <Col>
-              
-                <Card.Body>
-                  <img src={viteLogo} alt="Vite Logo" className="logo"/>
-                </Card.Body>
-                <PrinterFiles setAlertFunctions={setAlertFunctions} />
+                </Stack>
+              </Grid>
+              <Grid xs={6}>
+                <Stack justifyContent="space-evenly">
 
-            </Col>
-        </Row>
+                    <Grid>
+                      <FileInfo selectedFile={selectedFile} setSelectedFile={setSelectedFile} setAlertFunctions={setAlertFunctions}  />
+                    </Grid>
+                    <Grid>
+                      <FileList selectedFile={selectedFile} setSelectedFile={setSelectedFile}  setAlertFunctions={setAlertFunctions} />
+                    </Grid>
+                    
+                    <img src={reactLogo} alt="React Logo" className="logo"/>
+
+                </Stack>
+              </Grid>
+          </Grid>
+        </Box>
       </div>
     </>
   )

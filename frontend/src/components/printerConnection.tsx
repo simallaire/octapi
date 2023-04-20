@@ -1,9 +1,8 @@
-
 import { useEffect, useState } from "react";
-import Card from 'react-bootstrap/Card';
 import Connection from "../models/Connection";
+import { Button, Card, CardContent, CardHeader, FormControl, Grid, InputLabel, MenuItem, Paper, Select, styled } from "@mui/material";
 import PrinterConnectionService from "../services/printerConnection.service";
-import { Button, Form, FormSelect } from "react-bootstrap";
+import LabelledSwitch from "./common/switch";
 
 
 interface PrinterConnectionState {
@@ -46,7 +45,7 @@ function PrinterConnection(){
         await PrinterConnectionService.connect(port, baudRate, autoconnect);
         fetchState();
     }
-    const handleFormDisplay = (e) => {
+    const handleFormDisplay = (e: any) => {
         setShowForm(e.target.checked);
     }
     useEffect(() => {
@@ -70,34 +69,57 @@ function PrinterConnection(){
         
     })
     return (
-        <Card border={isConnected? "success" : "warning"}>
-            <Form.Check reverse={true} type="switch" className='form form-text' name="showForm" label="Show Connection Form" onChange={handleFormDisplay}/>
-            <Card.Header as="h5">Connection State</Card.Header>
-            <Card.Body >
-                <Card.Text >
+        <Card>
+            {/* <Form.Check reverse={true} type="switch" className='form form-text' name="showForm" label="Show Connection Form" onChange={handleFormDisplay}/> */}
+            <CardHeader title={"Connection State"}></CardHeader>
+            <LabelledSwitch checked={showForm} onChange={handleFormDisplay} label="Show connection form" />
+            <CardContent>
                     <div>
                         <span className={isConnected? "greendot" : "reddot"}></span>
                             {isConnected ? connectionState?.options?.printerProfiles[0]?.name +" Connected" : "Disconnected"}
                     </div>
-                    <Form style={{"display": showForm?"inline":"none"}}>
-                        <Form.Select  disabled={isConnected} value={port} onChange={e => {setPort(e.target.value)}}>
+                    <div style={{"display": showForm?"inline":"none"}} >
+                        <FormControl fullWidth>
+                        <InputLabel id="device-path-label">Device Path</InputLabel>
+                        <Select
+                            labelId="device-path-label"
+                            id="demo-simple-select"
+                            value={port}
+                            disabled={isConnected}
+                            label="Device path"
+                            onChange={e => {setPort(e.target.value)}}
+                        >
                             {connectionState?.options?.ports?.map((path) => (
-                                <option key={path}>{path}</option>
+                            <MenuItem key={path} value={path}>{path}</MenuItem>
                             ))}
-                        </Form.Select>
-                        <Form.Select disabled={isConnected} value={baudRate} onChange={e => {setBaudRate(e.target.value)}}>
+
+                        </Select>
+                        </FormControl>
+                        <FormControl fullWidth>
+                        <InputLabel id="device-baudrate-label">Baudrate</InputLabel>
+                        <Select
+                            labelId="device-baudrate-label"
+                            id="demo-simple-select"
+                            value={baudRate}
+                            disabled={isConnected}
+                            label="baudrate"
+                            onChange={e => {setBaudRate(parseInt(e.target.value as string))}}
+                        >
                             {connectionState?.options?.baudrates?.map((baudrate) => (
-                                <option key={baudrate}>{baudrate}</option>
+                            <MenuItem key={baudrate} value={baudrate}>{baudrate}</MenuItem>
                             ))}
-                        </Form.Select>
-                        <Form.Check type="switch" name="autoconnect" label="Auto-Connect" disabled={isConnected} value={autoconnect}/>
+
+                        </Select>
+                        </FormControl>
+                        <LabelledSwitch onChange={null} name="autoconnect" label="Auto-Connect" disabled={isConnected} checked={autoconnect}/>
                         <br/>
-                        <Button className="btn btn-primary form-control" disabled={isConnected} onClick={handleConnect}>Connect</Button>
-                        <Button className="btn btn-secondary form-control" disabled={!isConnected} onClick={() => PrinterConnectionService.disconnect()}>Disconnect</Button>
-                    </Form>
-                </Card.Text>
-            </Card.Body>
+                        </div>
+                        <Button fullWidth={true}  disabled={isConnected} onClick={handleConnect}>Connect</Button>
+                        <Button fullWidth={true} disabled={!isConnected} onClick={() => PrinterConnectionService.disconnect()}>Disconnect</Button>
+                                
+            </CardContent>
         </Card>
+
     )
 
     }

@@ -1,12 +1,9 @@
 
 import { useEffect, useState } from "react";
-import Card from 'react-bootstrap/Card';
-import Connection from "../models/Connection";
-import PrinterConnectionService from "../services/printerConnection.service";
-import { Button, Form, FormSelect, Table } from "react-bootstrap";
 import TemperatureState from "../models/Temperature";
 import printerInfoService from "../services/printerInfo.service";
 import TemperatureForm from "./temperatureForm";
+import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from "@mui/material";
 
 interface PrinterTemperatureState {
     temperature: TemperatureState | undefined,
@@ -15,18 +12,18 @@ interface PrinterTemperatureState {
 
 }
 
-const InlineEdit = ({ value, setValue }) => {
+const InlineEdit = ({ value, setValue }: any) => {
     const [editingValue, setEditingValue] = useState(value);
     
-    const onChange = (event) => setEditingValue(event.target.value);
+    const onChange = (event: any) => setEditingValue(event.target.value);
     
-    const onKeyDown = (event) => {
+    const onKeyDown = (event: any) => {
       if (event.key === "Enter" || event.key === "Escape") {
         event.target.blur();
       }
     }
     
-    const onBlur = (event) => {
+    const onBlur = (event: any) => {
       if (event.target.value.trim() === "") {
         setEditingValue(value);
       } else {
@@ -71,35 +68,40 @@ function PrinterTemperature(){
     })
 
     return (
-            <Table striped bordered hover>
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>Extruder</th>
-                        <th>Bed</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Actual</td>
-                        <td>
+        <>
+            <TableContainer component={Paper}>
+
+            <Table >
+                <TableHead>
+                    <TableRow>
+                        <TableCell></TableCell>
+                        <TableCell>Extruder</TableCell>
+                        <TableCell>Bed</TableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    <TableRow>
+                        <TableCell>Actual</TableCell>
+                        <TableCell>
                             {temperature?.tool0.actual} °C
-                        </td>
-                        <td>
+                        </TableCell>
+                        <TableCell>
                             {temperature?.bed.actual} °C
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Target</td>
-                        <td>
+                        </TableCell>
+                    </TableRow>
+                    <TableRow>
+                        <TableCell>Target</TableCell>
+                        <TableCell>
                             <TemperatureForm temp={toolTarget} setTemp={setToolTarget} tool="tool0" />
-                        </td>
-                        <td>
+                        </TableCell>
+                        <TableCell>
                             <TemperatureForm temp={bedTarget} setTemp={setBedTarget} tool="bed" />
-                        </td>
-                    </tr>
-                </tbody>
-            </Table>
+                        </TableCell>
+                    </TableRow>
+                </TableBody>
+             </Table>
+            </TableContainer>
+        </>
     )
 }
 

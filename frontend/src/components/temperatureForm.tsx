@@ -9,6 +9,7 @@ import printerInfoService from "../services/printerInfo.service";
 import NumericInput from 'react-numeric-input';
 import editIcon from '../assets/edit.png'
 import React from "react";
+import EditIcon from '@mui/icons-material/Edit';
 
 interface TemperatureFormState {
     toolname: string | null;
@@ -20,7 +21,7 @@ interface TemperatureFormState {
 
 }
 
-function TemperatureForm({temp, setTemp, tool}) {
+function TemperatureForm({temp, setTemp, tool}: any) {
     const defaultTemperatureState : TemperatureFormState = {
         toolname: tool,
         editing: false,
@@ -49,10 +50,11 @@ function TemperatureForm({temp, setTemp, tool}) {
 
     });
 
-    const handleEdit = () => {
+    const handleEdit = (e: any) => {
         setEditing(true);
         setInputVisibility("visible");
         setEditVisibility("hidden");
+        e.target.focus()
         if(tempInputRef.current) console.log(tempInputRef)
     };
 
@@ -70,7 +72,7 @@ function TemperatureForm({temp, setTemp, tool}) {
         setEditVisibility("visible");
         setEditing(false);
     };
-    const onKeyDown = (event) => {
+    const onKeyDown = (event: any) => {
         if (event.key === "Enter") {
             handleSave(targetTemperature);
         }
@@ -85,12 +87,21 @@ function TemperatureForm({temp, setTemp, tool}) {
                 { inputVisibility === "hidden" && (       
                 <div onClick={handleEdit} style={{"position":"relative", display: "", "minWidth":"10rem", paddingLeft: "10%"}}>
                 <span onClick={handleEdit}>{temperature} °C</span>
-                <img className="ms-auto"  style={{"height": "20px", "paddingLeft":"10px"}} onClick={handleEdit} src={editIcon}/>
+                <EditIcon className="ms-auto"  style={{"height": "20px", "paddingLeft":"10px"}} onClick={handleEdit}/>
                 </div>
                 )}
                 { inputVisibility === "visible" && (
                 <div style={{"visibility": inputVisibility}}>
-                    <NumericInput className="form-control" style={{"width": "100%"}} min={0} max={toolname === "bed" ? 100: 250} onKeyDown={onKeyDown} type="number" value={targetTemperature} onChange={e => setTargetTemperature(e)} />
+                    <NumericInput 
+                        className="form-control"
+                        min={0} 
+                        max={toolname === "bed" ? 100: 250} 
+                        onKeyDown={onKeyDown} 
+                        type="number" 
+                        value={targetTemperature} 
+                        onChange={e => {
+                            return setTargetTemperature(e || 0);
+                        }} />
                     {/* <CloseButton onClick={handleCancel} /> */}
                 </div>
                 )}

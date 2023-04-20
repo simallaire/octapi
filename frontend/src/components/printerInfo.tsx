@@ -1,6 +1,6 @@
 
-import { useEffect, useState } from "react";
-import Card from 'react-bootstrap/Card';
+import React, { Attributes, Component, useEffect, useState } from "react";
+// import { Card } from '@mui/material'
 import PrinterInfoService from "../services/printerInfo.service"
 import PrinterState from "../models/PrinterState";
 import PrinterTemperature from "./printerTemperature";
@@ -9,16 +9,24 @@ import ASpinner from "./common/aSpinner";
 import LineChartData from "../models/LineChartData";
 import UtilitiesService from "../services/utilities.service";
 import TemperatureLineChart from "./common/temperatureLineChart";
-import { Button, Form } from "react-bootstrap";
 import printerFileService from "../services/printerFile.service";
-
+import axios from "axios";
+import { IPrinterTemperature } from "../models/PrinterTemperature";
+import ReactApexChart from "react-apexcharts";
+import { ApexOptions } from "apexcharts";
+import { Box, Button, Card, CardContent, CardHeader, Chip, LinearProgress, LinearProgressProps, Typography } from "@mui/material";
+import printerJobService from "../services/printerJob.service";
 
 interface PrinterInfoState {
     name: String | null,
     printerState: PrinterState | undefined,
     error: String | null,
-    temperatureHistory: TemperatureHistory[] | undefined
-    lineChartData: LineChartData | undefined;
+    temperatureHistoryDB: IPrinterTemperature[] | undefined,
+    lineChartData: LineChartData | undefined,
+    apexState: any | undefined,
+    apexChart: ReactApexChart | any,
+    progress: number
+    
 
 }
 
@@ -26,20 +34,40 @@ interface PrinterInfoState {
 
 
 
-function PrinterInfo({setIsPrinting}){
+function PrinterInfo({setIsPrinting, isPrinting, setAlertFunctions}: any){
 
     const defaultState : PrinterInfoState = {
         name: null,
         printerState: undefined,
         error: null,
-        temperatureHistory: undefined,
-        lineChartData: undefined
+        temperatureHistoryDB: undefined,
+        lineChartData: undefined,
+        apexState: undefined,
+        apexChart: {},
+        progress: 0
     }
 
     const [printerState, setPrinterState] = useState(defaultState.printerState);
     const [error, setError] = useState(defaultState.error);
-    const [temperatureHistory, setTemperatureHistory] = useState(defaultState.temperatureHistory);
     const [lineChartData, setLineChartData] = useState(defaultState.lineChartData);
+    const [temperatureHistoryDB, setTemperatureHistoryDB] = useState(defaultState.temperatureHistoryDB);
+    const [apexState, setApexState] = useState(defaultState.apexState);
+    const [apexChart, setApexChart] = useState(defaultState.apexChart);
+    const [progress, setProgress] = useState(defaultState.progress);
+    
+    function LinearProgressWithLabel(props: LinearProgressProps & { value: number }) {
+        return (
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Box sx={{ width: '100%', mr: 1 }}>
+              <LinearProgress variant="determinate" {...props} />
+            </Box>
+            <Box sx={{ minWidth: 35 }}>
+              <Typography variant="body2" color="text.secondary">{`${(props?.value || 0.0).toFixed(2)}%`}</Typography>
+            </Box>
+          </Box>
+        );
+      }
+      
     const fetchState = async () => {
             const responseState = await PrinterInfoService.getState()
 
@@ -50,39 +78,175 @@ function PrinterInfo({setIsPrinting}){
                 setError(responseState.error);
             }
     }
-    const fetchHistory = async () => {
-        const responseHistory = await PrinterInfoService.getTemperatureHistory()
+    const fetchHistoryDB = async (n: number) => {
+        const responseHistoryDB = await PrinterInfoService.getLastN_DB(n as unknown as string)
 
-        if (responseHistory === false) {
+        if (responseHistoryDB === false) {
             setError("Not operational");
         }else{
-            setTemperatureHistory(responseHistory);
+            // console.log(responseHistoryDB);
+            setTemperatureHistoryDB(responseHistoryDB);
         }
     }
-    const makeChartData = () => {
-        let toolCurrent = [] 
+    const fetchProgress = async () => {
+        const responseProgress = await printerJobService.getJobProgress()
+
+        if (responseProgress === false) {
+            setError("Not operational");
+        }else{
+            setProgress(responseProgress.progress.completion);
+        }
+    }
+    const fetchLastOne = async () => {
+        const responseLastOne = await PrinterInfoService.getLastN_DB("1")
+
+        if (responseLastOne === false) {
+            setError("Not operational");
+        }else{
+            // console.log(responseLastOne);
+            let tempTempHistoryDB = temperatureHistoryDB
+            tempTempHistoryDB?.shift()
+            tempTempHistoryDB?.push(responseLastOne[0]);
+            setTemperatureHistoryDB(tempTempHistoryDB);
+        }
+    }
+
+    const handleCancel = () => {
+        setIsPrinting(false)
+        setAlertFunctions.setAlertMessage("Print canceled")
+        setAlertFunctions.setAlertVariant("warning")
+        setAlertFunctions.setAlertShow(true)
+        printerFileService.cancelPrint()
+        setTimeout(() => {
+            fetchState()
+        }, 2000)
+
+    }
+    const makeChartDataDBApex = () => {
+        let toolActual = [] 
         let toolTarget = []
-        let bedCurrent = []
+        let bedActual = []
         let bedTarget = []
         let x = []
 
-        if (temperatureHistory !== undefined) {
-            
-            for (let i = 0; i < temperatureHistory.length; i++) {
-                x.push(UtilitiesService.secondsToHourMin(temperatureHistory[i].time));
-                toolCurrent.push(temperatureHistory[i].tool0.actual || 0);
-                toolTarget.push(temperatureHistory[i].tool0.target || 0);
-                bedCurrent.push(temperatureHistory[i].bed.actual || 0);
-                bedTarget.push(temperatureHistory[i].bed.target || 0);
+       
+        if (temperatureHistoryDB!== undefined) {
+            for (let i = 0; i < temperatureHistoryDB.length-3; i+=3) {
+                const tempDate = new Date(temperatureHistoryDB[i].date)
+                const getTime = tempDate.getTime()
+                x.push(tempDate);
+                toolActual.push([getTime, temperatureHistoryDB[i].toolActual]);
+                toolTarget.push([getTime, temperatureHistoryDB[i].toolTarget || 0]);
+                bedActual.push([getTime, temperatureHistoryDB[i].bedActual || 0]);
+                bedTarget.push([getTime, temperatureHistoryDB[i].bedTarget || 0]);
 
             }
         }
+        const state = {
+          
+            series: [{
+                name: 'Tool',
+                data: toolActual
+            },
+            {
+                name: 'Tool Target',
+                data: toolTarget
+            },
+            {
+                name: 'Bed',
+                data: bedActual
+            },
+            {
+                name: 'Bed Target',
+                data: bedTarget
+            }],
+            options: {
+              chart: {
+                type: 'line',
+                stacked: false,
+                height: 350,
+                zoom: {
+                  type: 'x',
+                  enabled: true,
+                  autoScaleYaxis: true
+                },
+                toolbar: {
+                  autoSelected: 'zoom'
+                }
+              },
+              dataLabels: {
+                enabled: false
+              },
+              markers: {
+                size: 0,
+              },
+              title: {
+                text: 'Last 2h temperatures',
+                align: 'center'
+              },
+            //   fill: {
+            //     type: 'gradient',
+            //     gradient: {
+            //       shadeIntensity: 1,
+            //       inverseColors: false,
+            //       opacityFrom: 0.5,
+            //       opacityTo: 0.5,
+            //       stops: [0, 90, 100]
+            //     },
+            //   },
+              yaxis: {
+                title: {
+                  text: 'Temperature (°C)'
+                },
+              },
+              xaxis: {
+                type: 'datetime',
+                title: {
+                  text: 'Date'
+                },
+                labels: {
+                    datetimeUTC: false
+                }
+
+
+              },
+              tooltip: {
+                shared: false,
+              }
+            },
+          
+          
+          };
+          return state;
+        }
+    const makeChartDataDB = () => {
+        let toolActual = [] 
+        let toolTarget = []
+        let bedActual = []
+        let bedTarget = []
+        let x = []
+
+       
+        if (temperatureHistoryDB!== undefined) {
+            for (let i = 0; i < temperatureHistoryDB.length-3; i+=3) {
+                const tempDate = new Date(temperatureHistoryDB[i].date)
+                x.push(tempDate.toLocaleTimeString());
+                toolActual.push(temperatureHistoryDB[i].toolActual || 0);
+                toolTarget.push(temperatureHistoryDB[i].toolTarget || 0);
+                bedActual.push(temperatureHistoryDB[i].bedActual || 0);
+                bedTarget.push(temperatureHistoryDB[i].bedTarget || 0);
+
+            }
+        }
+        // console.log(toolActual.length);
+        if (toolActual.length == 0) 
+            console.log(temperatureHistoryDB)
         return {
             labels: x || [0],
             datasets: [
                 {
                 label: 'Tool Actual',
-                data: toolCurrent || [0],
+                data: toolActual || [0],
                 borderColor: 'rgb(255, 99, 132)',
                 backgroundColor: 'rgba(255, 99, 132, 0.5)',
                 },
@@ -94,7 +258,7 @@ function PrinterInfo({setIsPrinting}){
                 },
                 {
                 label: 'Bed Actual',
-                data: bedCurrent || [0],
+                data: bedActual || [0],
                 borderColor: 'rgb(53, 162, 255)',
                 backgroundColor: 'rgba(53, 162, 255, 0.5)',
                 },
@@ -106,40 +270,52 @@ function PrinterInfo({setIsPrinting}){
                 },
             ],
         }
+    
+
 
         
-
-    }
-    const handleCancel = () => {
-        setIsPrinting(false)
-        printerFileService.cancelPrint()
-        setTimeout(() => {
-            fetchState()
-        }, 2000)
-
     }
 
     useEffect(() => {
         fetchState();
-        fetchHistory();
-        setLineChartData(makeChartData);
+        // fetchHistory();
+        // setApexChart(new ReactApexChart(docume), apexState))/;
+        fetchHistoryDB(12*60);
+        fetchProgress();
+        setLineChartData(makeChartDataDB);
+        setApexState(makeChartDataDBApex);
         setIsPrinting(printerState?.flags?.printing);
+        if (apexState?.series.length > 0) {
+        setApexChart(React.createElement(ReactApexChart,
+             { 
+                type: "line",
+                series: apexState.series,
+                options: apexState.options 
+            })
+        )
+        }
+        // setApexChart(new ApexCharts(document.getElementById("chartdiv"), apexState));
 
         
     }, []);
     useEffect(() => {
-        
-    }, [temperatureHistory]);
+        console.log("changed chart data")
+    }, [temperatureHistoryDB]);
     useEffect(() => {
         
         setTimeout(() => {
             fetchState();
-            fetchHistory();
-            setLineChartData(makeChartData)
+            // fetchHistory();
+            fetchLastOne();
+            if (temperatureHistoryDB!== undefined) {
+                setLineChartData(makeChartDataDB)
+                setApexState(makeChartDataDBApex)
+            }
             setIsPrinting(printerState?.flags?.printing);
-
-            // console.log(printerState);
-        }, 10000);
+            fetchProgress();
+        
+        }, 5000);
+        
 
     })
     if(error === "") {
@@ -148,47 +324,49 @@ function PrinterInfo({setIsPrinting}){
         return (
             <>
 
-                <Card border="info">
+                <Card>
 
                 { printerState && (
                     <>
-                    <Card.Header>Printer State: { printerState.flags?.printing? "Printing" : "Not Printing" }</Card.Header>
-                    <Card.Body>
-                        <Card.Text>
+                    <CardHeader title={printerState.flags?.printing? <Chip color="warning" label="Printing"/> :  <Chip variant="outlined" color="success" label="Not Printing"/>}></CardHeader>
+
+                    <CardContent>
+                        <div>
                             <>
-                            State: { printerState.text }
+                            Target state: { printerState.text }                    
+                            <CardContent>
+                                <LinearProgressWithLabel value={progress} />
+                            </CardContent>
                             </>
                        
-                            <Form>
-                                <Button disabled={!printerState.flags?.printing} variant="secondary" className="form-control" type="submit" onClick={handleCancel}>Cancel Print</Button>
-                            </Form>
-                        </Card.Text>
-                        <Card.Text>
+                            <div>
+                                <Button disabled={!printerState.flags?.printing} fullWidth={true} color="secondary" className="" type="submit" onClick={handleCancel}>Cancel Print</Button>
+                            </div>
+                        </div>
+                        <div >
                             <PrinterTemperature />
-                        </Card.Text>
-                        <Card.Text>
-                        </Card.Text>
-                    </Card.Body>
+                        </div>
+                    </CardContent>
+
                     </>
                     )}
-                </Card>
-                { lineChartData?.datasets && (
-                    <TemperatureLineChart data={lineChartData} />
 
-                )}
+                </Card>
+                { apexState.series[0].data && <Card><ReactApexChart id="apexChart" options={apexState.options} series={apexState.series} type="line" height={350} /></Card> }
+
             </>
         )
             }
     else 
         {
             return (
-                <Card border="danger" style={{ width: '30rem' }}>
-                    <Card.Body>
-                        <Card.Title>Error</Card.Title>
-                        <Card.Text>
+                <Card style={{ width: '30rem' }}>
+                    <CardContent>
+                        <CardHeader>Loading</CardHeader>
+                        <div>
                             <ASpinner />
-                        </Card.Text>
-                    </Card.Body>
+                        </div>
+                    </CardContent>
                 </Card>
             )
         }

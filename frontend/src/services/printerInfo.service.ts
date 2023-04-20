@@ -38,13 +38,26 @@ class PrinterInfoService{
                 return false
             })
     }
+    getLastN_DB(n : string){
+        return fetch("http://192.168.0.2:8000/temperature/getLastN?n="+n)
+        .then((response) => {
+            if(response.status === 200){
+                return response.json()
+            }
+            return false
+        })
+        .catch((error) => {
+            console.log(error)
+            return false
+        })
+    }
     setTargetTemperature(temperature: number, toolname: string){
         if (toolname == "tool0"){
             return axios
                 .post("printer/tool", 
                 { 
                     "command": "target",
-                    "targets": { "tool0": parseInt(temperature) }
+                    "targets": { "tool0": parseInt(temperature as unknown as string) }
                 })
                 .then((response) => {
                     return response.status
@@ -55,7 +68,7 @@ class PrinterInfoService{
             .post("printer/bed", 
             { 
                 "command": "target",
-                "target" : parseInt(temperature)
+                "target" : parseInt(temperature as unknown as string)
             })
             .then((response) => {
                 return response.status

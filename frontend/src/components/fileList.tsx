@@ -1,32 +1,28 @@
-import { Input } from "@mui/material";
+import { Button, Card, CardContent, CardHeader, Input, List } from "@mui/material";
 import { useEffect, useState } from "react";
 import { Badge, ListGroup, Placeholder, Table } from "react-bootstrap";
-import Card from 'react-bootstrap/Card';
 import Files, {File} from "../models/Files";
 import PrinterFileService from "../services/printerFile.service";
 import FileListItem from "./fileList/fileListItem";
 import FileInfo from "./fileInfo";
 import FuzzySearch from 'fuzzy-search';
 
-interface PrinterFilesState {
+interface FileListState {
     fileResponse: Files | undefined; 
     fileList: File[] | undefined;
-    selectedFile: File | undefined;
     searchText: string;
 }
 
-function PrinterFiles({setAlertFunctions}){
+function FileList({setAlertFunctions, selectedFile, setSelectedFile}: any){
 
-    const defaultState: PrinterFilesState = {
+    const defaultState: FileListState = {
         fileResponse: undefined,
         fileList: undefined,
-        selectedFile: undefined,
         searchText: ""
     }
 
     const [fileResponse, setFileResponse] = useState(defaultState.fileResponse);
     const [fileList, setFileList] = useState(defaultState.fileList);
-    const [selectedFile, setSelectedFile] = useState(defaultState.selectedFile);
     const [searchText, setSearchText] = useState(defaultState.searchText);
 
     const fetchFiles = async () => {
@@ -45,7 +41,7 @@ function PrinterFiles({setAlertFunctions}){
         if (e.target.value === ""){
             setFileList(fileResponse?.files || []);
         }else{
-            const searcher = new FuzzySearch(fileResponse.files || [], ["display"]);
+            const searcher = new FuzzySearch(fileResponse?.files || [], ["display"]);
             const results = searcher.search(e.target.value);
             setFileList(results);
             console.log(results);
@@ -65,31 +61,28 @@ function PrinterFiles({setAlertFunctions}){
     return (
         <>
         <Card>
-            <Card.Header as="h5">File Info</Card.Header>
-            <Card.Body>
-                { selectedFile ? (
-                    <FileInfo selectedFile={selectedFile} setSelectedFile={setSelectedFile} setAlertFunctions={setAlertFunctions} />
-                ) :(
-                    <Card>
-
-                        Select a File in the list to view its details.
-                    </Card>
-                )}
-            </Card.Body>
-        </Card>
-        <Card>
-            <Card.Header as="h5">File List</Card.Header>
-            <Input type="text" placeholder="Filter.." value={searchText} onChange={registerKey} onKeyUp={handleSearch}></Input>
-            <Card.Body >
+            <Input 
+                type="text"
+                placeholder="Filter.."
+                value={searchText}
+                onChange={registerKey}
+                onKeyUp={handleSearch}
+            />
+            <CardContent >
                     { fileList && (
-                        <ListGroup as="ol" numbered style={{maxHeight: 360, overflow: 'auto', width: "100%"}}>
+                        <List component="nav" sx={{maxHeight: 360, overflow: 'auto', width: "100%"}}>
                             {fileList.map((file) => (
-                                <FileListItem key={file.date} file={file} selectedFile={selectedFile} setSelectedFile={setSelectedFile} />
+                                <FileListItem 
+                                    key={file.date} 
+                                    file={file} 
+                                    selectedFile={selectedFile} 
+                                    setSelectedFile={setSelectedFile} 
+                                />
                             ))}
-                        </ListGroup>
+                        </List>
 
                     )}
-                </Card.Body>
+            </CardContent>
 
         </Card>
         </>
@@ -98,4 +91,4 @@ function PrinterFiles({setAlertFunctions}){
     }
 
 
-export default PrinterFiles;
+export default FileList;

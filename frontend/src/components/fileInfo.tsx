@@ -1,26 +1,34 @@
 import { useState, useEffect } from 'react'
-import { Button, Card, Form, Table } from 'react-bootstrap';
-import { GCodeViewer, CameraInitialPosition } from 'react-gcode-viewer';
+import { GCodeViewer, CameraInitialPosition, FloorProps } from 'react-gcode-viewer';
 import { File } from '../models/Files';
 import utilitiesService from '../services/utilities.service';
 import printerFileService from '../services/printerFile.service';
+import LabelledSwitch from './common/switch';
+import { Button, Card, CardContent, CardHeader, Divider, Paper, Table, 
+         TableBody, TableCell, TableContainer, TableHead, TableRow,
+         ToggleButton, ToggleButtonGroup } from '@mui/material';
+import { ViewInAr } from '@mui/icons-material';
 
 
 interface FileInfoState {
     file: File | undefined;
     renderGCode: boolean;
+    gCodeQuality: number;
 }
 
-function FileInfo({selectedFile, setSelectedFile, setAlertFunctions}){
+function FileInfo({selectedFile, setSelectedFile, setAlertFunctions}: any){
     const defaultState : FileInfoState = {
         file: selectedFile,
-        renderGCode: false
+        renderGCode: false,
+        gCodeQuality: 1
     }
+    
     const [file, setFile] = useState(defaultState.file);
     const [costPerMeter, setCostPerMeter] = useState(0.10);
     const [renderGCode, setRenderGCode] = useState(defaultState.renderGCode);
+    const [gCodeQuality, setGCodeQuality] = useState(defaultState.gCodeQuality);
 
-    const secondsToHours = (seconds) => {
+    const secondsToHours = (seconds: number) => {
         const hours = Math.floor(seconds / 3600);
         const remainderSeconds = seconds % 3600;
         const minutes = Math.floor(remainderSeconds / 60);
@@ -29,6 +37,9 @@ function FileInfo({selectedFile, setSelectedFile, setAlertFunctions}){
     }
     const handleGCodeSwitch = () => {
         setRenderGCode(!renderGCode);
+    }
+    const handleGCodeQualityChange = (event: any) => {
+        setGCodeQuality(event.target.value/ 100.0);
     }
     const handlePrint = async () => {
         if(file !== undefined){
@@ -52,85 +63,121 @@ function FileInfo({selectedFile, setSelectedFile, setAlertFunctions}){
     }, [selectedFile]);
 
     const gcodeviewerStyle = {
-        top: 0,
-        left: 0,
-        width: '25vw',
+
+        width: '100%',
         height: '30vh',
-        position: 'relative',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
         overflow: 'hidden',
 
    
+    }
+    const floorProps: FloorProps = {
+        gridWidth: 235,
+        gridLength: 235,
     }
     const initCameraPosition : CameraInitialPosition = {
         latitude: Math.PI / 4,
         longitude: -Math.PI / 4,
         distance: 100
     }
+    if (selectedFile){
     return (
         <>
-        <Card.Header><span className='text-break'>{file?.display}</span></Card.Header>
-            Uploaded: {utilitiesService.secondsToHumanReadable(file.date)}
-            <Form className='form'>
-            <Form.Check reverse type="switch" className='form form-text' name="autoconnect" label="Render GCode" onChange={handleGCodeSwitch}/>
-            </Form>
-            { renderGCode == true && (
-            <Card.Body>
-                <GCodeViewer 
-                    url={file.refs.resource.replace("api", "downloads") + "?apikey=" + import.meta.env.VITE_API_KEY}
-                    orbitControls
-                    cameraInitialPosition={initCameraPosition}
-                    showAxes
-                    style={gcodeviewerStyle}
-                    /> 
-            </Card.Body>
-            )}
+        <Card>
+            <CardHeader title={<span className='text-break'>{file?.display}</span>} subheader={"Uploaded: " + utilitiesService.secondsToHumanReadable(file?.date || 0)}></CardHeader>
+                <LabelledSwitch type="switch"  name="autoconnect" label={<ViewInAr/>} onChange={handleGCodeSwitch}/>
+                <ToggleButtonGroup
+                    value={gCodeQuality}
+                    exclusive
+                    size="small"
+                    onChange={handleGCodeQualityChange}
+                    defaultValue={100}
+                >
+                    <ToggleButton value={25} key={25} aria-label="quality">25</ToggleButton>
+                    <ToggleButton value={50} key={50} aria-label="quality">50</ToggleButton>
+                    <ToggleButton value={75} key={75} aria-label="quality">75</ToggleButton>
+                    <ToggleButton value={100} key={100} aria-label="quality">100</ToggleButton>
+                </ToggleButtonGroup>
+                {renderGCode == true && (
+                <CardContent>
+                    <GCodeViewer 
+                        url={(file?.refs.resource.replace("api", "downloads") || "") + "?apikey=" + import.meta.env.VITE_API_KEY}
+                        orbitControls
+                        cameraInitialPosition={initCameraPosition}
+                        showAxes
+                        floorProps={floorProps}
+                        style={gcodeviewerStyle}
+                        quality={gCodeQuality}
+                        /> 
+                </CardContent>
+                )}
+                <CardContent>
+                <div className="mb-3"> 
+                    <label className='form-label fw-bold' htmlFor="printTime">Estimated print time</label>
+                    <div id="printTime" className='form-text'>{selectedFile ? secondsToHours(selectedFile.gcodeAnalysis.estimatedPrintTime || 0): ""}</div>
+                </div>
+                <div className="fw-bold">Dimensions</div>
+                <TableContainer component={Paper}>
+                <Table size="small">
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>Width</TableCell>
+                            <TableCell>Depth</TableCell>
+                            <TableCell>Height</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        <TableRow>
+                            
+                            <TableCell>{selectedFile.gcodeAnalysis.dimensions.width.toFixed(1)} mm</TableCell>
+                            <TableCell>{selectedFile.gcodeAnalysis.dimensions.depth.toFixed(1)} mm</TableCell>
+                            <TableCell>{selectedFile.gcodeAnalysis.dimensions.height.toFixed(1)} mm</TableCell>
+                        </TableRow>
+                        </TableBody>
+                </Table>
+                </TableContainer>
+                <Divider light/>
 
-            <Card.Body>
-            <div className="mb-3"> 
-                <label className='form-label fw-bold' for="printTime">Estimated print time</label>
-                <div id="printTime" className='form-text'>{selectedFile ? secondsToHours(selectedFile.gcodeAnalysis.estimatedPrintTime): ""}</div>
-            </div>
-            <div className="fw-bold">Dimensions</div>
-            <Table striped  hover className='form-text'>
-                <thead>
-                    <tr>
-                        <th>Width</th>
-                        <th>Depth</th>
-                        <th>Height</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>{selectedFile.gcodeAnalysis.dimensions.width.toFixed(1)} mm</td>
-                        <td>{selectedFile.gcodeAnalysis.dimensions.depth.toFixed(1)} mm</td>
-                        <td>{selectedFile.gcodeAnalysis.dimensions.height.toFixed(1)} mm</td>
-                    </tr>
-                    </tbody>
-            </Table>
-            <div className="fw-bold">Filament</div> 
-            <Table striped  hover className='form-text'>
-                <thead>
-                    <tr>
-                        <th>Length</th>
-                        <th>Volume</th>
-                        <th>Estimated cost <code>@{costPerMeter}$/m</code> </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>{(selectedFile.gcodeAnalysis.filament.tool0.length / 1000).toFixed(2)} m</td>
-                        <td>{(Math.PI * Math.pow(1.75, 2) * selectedFile.gcodeAnalysis.filament.tool0.length/1000).toFixed(2)} cm3</td>
-                        <td>{(selectedFile.gcodeAnalysis.filament.tool0.length / (1000/costPerMeter)).toFixed(2)} $</td>
-                    </tr>
-    
-                </tbody>
-            </Table>
-            <Form className='form'>
-                <Button className='form form-control' variant="primary" onClick={handlePrint}>Print</Button>
-            </Form>
-            </Card.Body>
+                <div className="fw-bold">Filament</div> 
+                <TableContainer component={Paper}>
+                <Table size="small">
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>Length</TableCell>
+                            <TableCell>Volume</TableCell>
+                            <TableCell>Estimated cost <code>@{costPerMeter}$/m</code> </TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        <TableRow>
+                            <TableCell>{(selectedFile.gcodeAnalysis.filament.tool0.length / 1000).toFixed(2)} m</TableCell>
+                            <TableCell>{(Math.PI * Math.pow(1.75, 2) * selectedFile.gcodeAnalysis.filament.tool0.length/1000).toFixed(2)} cm3</TableCell>
+                            <TableCell>{(selectedFile.gcodeAnalysis.filament.tool0.length / (1000/costPerMeter)).toFixed(2)} $</TableCell>
+                        </TableRow>
+        
+                    </TableBody>
+                </Table>
+                </TableContainer>
+                <Divider light/>
+
+                <Button fullWidth={true} color="primary" onClick={handlePrint}>Print</Button>
+                </CardContent>
+            </Card>
         </>
     )
+    }else{
+
+    return(
+        <Card>
+            <CardContent>
+                <Button disabled>Select a File in the list to view its details.</Button>
+
+            </CardContent>
+        </Card>
+    )
+    }
 }
 
 export default FileInfo;
