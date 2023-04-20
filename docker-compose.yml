@@ -4,11 +4,15 @@ services:
   backend:
     build:
       context: ./backend
+    restart: 'unless-stopped'
     privileged: true
     volumes:
       - ./backend/src:/app/src
     environment:
       - CONN_STR=mongodb://user:pass@mongodb
+      - TZ=America/Toronto
+    ports:
+      - "8000:8000"
     depends_on:
       - mongodb
 
