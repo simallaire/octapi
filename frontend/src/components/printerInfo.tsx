@@ -14,8 +14,9 @@ import axios from "axios";
 import { IPrinterTemperature } from "../models/PrinterTemperature";
 import ReactApexChart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
-import { Box, Button, Card, CardContent, CardHeader, Chip, LinearProgress, LinearProgressProps, Typography } from "@mui/material";
+import { Box, Button, Card, CardContent, CardHeader, Chip, Collapse, LinearProgress, LinearProgressProps, Typography } from "@mui/material";
 import printerJobService from "../services/printerJob.service";
+import LinearProgressWithLabel from "./common/linearProgressWithLabel";
 
 interface PrinterInfoState {
     name: String | null,
@@ -55,18 +56,7 @@ function PrinterInfo({setIsPrinting, isPrinting, setAlertFunctions}: any){
     const [apexChart, setApexChart] = useState(defaultState.apexChart);
     const [progress, setProgress] = useState(defaultState.progress);
     
-    function LinearProgressWithLabel(props: LinearProgressProps & { value: number }) {
-        return (
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Box sx={{ width: '100%', mr: 1 }}>
-              <LinearProgress variant="determinate" {...props} />
-            </Box>
-            <Box sx={{ minWidth: 35 }}>
-              <Typography variant="body2" color="text.secondary">{`${(props?.value || 0.0).toFixed(2)}%`}</Typography>
-            </Box>
-          </Box>
-        );
-      }
+
       
     const fetchState = async () => {
             const responseState = await PrinterInfoService.getState()
@@ -333,10 +323,12 @@ function PrinterInfo({setIsPrinting, isPrinting, setAlertFunctions}: any){
                     <CardContent>
                         <div>
                             <>
-                            Target state: { printerState.text }                    
-                            <CardContent>
-                                <LinearProgressWithLabel value={progress} />
-                            </CardContent>
+                                Target state: { printerState.text }    
+                                <Collapse in={printerState.text === "Printing"}>               
+                                <CardContent>
+                                    <LinearProgressWithLabel value={progress} />
+                                </CardContent>
+                                </Collapse> 
                             </>
                        
                             <div>
