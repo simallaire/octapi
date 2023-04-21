@@ -8,7 +8,6 @@ import TemperatureHistory from "../models/TemperatureHistory";
 import ASpinner from "./common/aSpinner";
 import LineChartData from "../models/LineChartData";
 import UtilitiesService from "../services/utilities.service";
-import TemperatureLineChart from "./common/temperatureLineChart";
 import printerFileService from "../services/printerFile.service";
 import axios from "axios";
 import { IPrinterTemperature } from "../models/PrinterTemperature";
@@ -32,6 +31,7 @@ interface PrinterInfoState {
 }
 
 
+    let apexCharEle: any;
 
 
 
@@ -303,7 +303,7 @@ function PrinterInfo({setIsPrinting, isPrinting, setAlertFunctions}: any){
             }
             setIsPrinting(printerState?.flags?.printing);
             fetchProgress();
-        
+            console.log(apexCharEle)
         }, 5000);
         
 
@@ -325,9 +325,9 @@ function PrinterInfo({setIsPrinting, isPrinting, setAlertFunctions}: any){
                             <>
                                 Target state: { printerState.text }    
                                 <Collapse in={printerState.text === "Printing"}>               
-                                <CardContent>
-                                    <LinearProgressWithLabel value={progress} />
-                                </CardContent>
+                                    <CardContent>
+                                        <LinearProgressWithLabel value={progress} />
+                                    </CardContent>
                                 </Collapse> 
                             </>
                        
@@ -344,7 +344,7 @@ function PrinterInfo({setIsPrinting, isPrinting, setAlertFunctions}: any){
                     )}
 
                 </Card>
-                { apexState.series[0].data && <Card><ReactApexChart id="apexChart" options={apexState.options} series={apexState.series} type="line" height={350} /></Card> }
+                { apexState.series[0].data && <Card><ReactApexChart  id="apexChart" options={apexState.options} series={apexState.series} type="line" height={350} /></Card> }
 
             </>
         )
