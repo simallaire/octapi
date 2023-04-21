@@ -11,6 +11,7 @@ import {Box, Divider, Stack} from '@mui/material'
 import Grid2 from '@mui/material/Unstable_Grid2';
 import { File } from './models/Files'
 import FileInfo from './components/fileInfo'
+import VideoStream from './components/videoStream'
 
 
 const Grid = Grid2;
@@ -53,7 +54,9 @@ function App({setAlertFunctions}: any) {
               </Grid>
               <Grid xs={6}>
                 <Stack justifyContent="space-evenly">
-
+                    <Grid>
+                      <VideoStream />
+                    </Grid>
                     <Grid>
                       <FileInfo selectedFile={selectedFile} setSelectedFile={setSelectedFile} setAlertFunctions={setAlertFunctions}  />
                     </Grid>
