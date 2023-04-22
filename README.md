@@ -2,7 +2,7 @@
 
 # OctAPI - Frontend Wrapper for OctoPrint
 
-OctoReact is a frontend wrapper for OctoPrint , built with React and Material UI to provide a modern and clean user interface. The goal of this project was mainly formative, but some other may prefer this cleaner interface
+OctAPI is a frontend wrapper for OctoPrint , built with React and Material UI to provide a modern and clean user interface. The goal of this project was mainly formative, but some other may prefer this cleaner interface
 
 ## Features
 
@@ -12,7 +12,7 @@ OctoReact is a frontend wrapper for OctoPrint , built with React and Material UI
 - Monitor the progress of your prints in real-time, with a visual representation of the print bed and a progress bar showing completion percentage
 
 ## Installation
-To install OctoReact, follow these steps:
+To install OctAPI, follow these steps:
 
 1. Clone the repository to your local machine.
 2. Locate the .env file and put provide the API KEY and API URL.
@@ -20,7 +20,7 @@ To install OctoReact, follow these steps:
 
 ## Configuration
 
-To configure OctoReact, edit the `.env` file in the frontend folder. Here, you can update the `API_KEY` and `API_URL` variables to match your OctoPrint instance. For example:
+To configure OctAPI, edit the `.env` file in the frontend folder. Here, you can update the `API_KEY` and `API_URL` variables to match your OctoPrint instance. For example:
 
 
 Once the development server is running, open a browser and navigate to `http://localhost:5173`. You should see the OctAPI interface, where you can connect to your OctoPrint instance and start controlling your printer.
@@ -34,7 +34,3 @@ Contributions to OctAPI are welcome! If you find a bug or have a feature request
 - Resizable & movable cards
 - Multiple user support
 - Safeguards?
-
-## License
-
-OctAPI is licensed under the MIT License. See the `LICENSE` file for more information.
