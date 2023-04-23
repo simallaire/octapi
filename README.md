@@ -3,7 +3,7 @@
 # OctAPI - Frontend Wrapper for OctoPrint
 
 OctAPI is a frontend wrapper for OctoPrint , built with React and Material UI to provide a modern and clean user interface. The goal of this project was mainly formative, but some other may prefer this cleaner interface
-
+![](https://i.imgur.com/koO0BdT.png)
 ## Features
 
 - Connect to your OctoPrint instance via its API
